@@ -943,10 +943,15 @@ public class NhanVienGUI extends JPanel {
     }
 
     public String validatePassword(String password) {
-        // check do dai mk
+        // check do dai mk toi thieu
         if (password.length() < 8) {
             return "Mật khẩu phải có ít nhất 8 ký tự!";
         }
+        // check do dai mk toi da
+        if (password.length() > 50) {
+            return "Mật khẩu phải có ít hơn 50 ký tự!";
+        }
+        
         boolean hasUpperCase = false;
         boolean hasLowerCase = false;
         boolean hasDigit = false;

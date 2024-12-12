@@ -352,13 +352,20 @@ public class QuyenGUI extends JPanel {
         btn_hoan_thanh.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                int confirmed;
                 if (isEditing) { // đang trong chế độ sửa
-                    confirmed = JOptionPane.showConfirmDialog(null, "Xác nhận sửa quyền", "", JOptionPane.YES_NO_OPTION);
+                    String id = arrTfInfor.get(0).getText();
+                    String ten = arrTfInfor.get(1).getText();
+                    
+                    // Validate tên quyền
+                    String validateResult = validateTenQuyen(ten, true);
+                    if (!validateResult.equals("done")) {
+                        JOptionPane.showMessageDialog(null, validateResult, "Lỗi", JOptionPane.ERROR_MESSAGE);
+                        arrTfInfor.get(1).requestFocus();
+                        return;
+                    }
+                    
+                    int confirmed = JOptionPane.showConfirmDialog(null, "Xác nhận sửa quyền", "", JOptionPane.YES_NO_OPTION);
                     if (confirmed == 0) { // xác nhận sửa
-                        String id = arrTfInfor.get(0).getText();
-                        String ten = arrTfInfor.get(1).getText();
-                        
                         QuyenDTO quyen = new QuyenDTO(id, ten, true);
                         quyenBUS.updateQuyen(quyen);
                         reloadQuyen(quyenBUS.getQuyenList());
@@ -370,16 +377,23 @@ public class QuyenGUI extends JPanel {
                     }
                 }
                 else { // đang trong chế độ thêm
-                    confirmed = JOptionPane.showConfirmDialog(null, "Xác nhận thêm quyền", "", JOptionPane.YES_NO_OPTION);
+                    String id = arrTfInfor.get(0).getText();
+                    String ten = arrTfInfor.get(1).getText();
+                    
+                    if (ten.trim().equals("")) {
+                        JOptionPane.showMessageDialog(null, "Tên không được để trống!");
+                        return;
+                    }
+
+                    String validateResult = validateTenQuyen(ten, false);
+                    if (!validateResult.equals("done")) {
+                        JOptionPane.showMessageDialog(null, validateResult, "Lỗi", JOptionPane.ERROR_MESSAGE);
+                        arrTfInfor.get(1).requestFocus();
+                        return;
+                    }
+                    
+                    int confirmed = JOptionPane.showConfirmDialog(null, "Xác nhận thêm quyền", "", JOptionPane.YES_NO_OPTION);
                     if (confirmed == 0) { // xác nhận thêm
-                        String id = arrTfInfor.get(0).getText();
-                        String ten = arrTfInfor.get(1).getText();
-                        
-                        if (ten.trim().equals("")) {
-                            JOptionPane.showMessageDialog(null, "Tên không được để trống!");
-                            return;
-                        }
-                       
                         QuyenDTO quyen = new QuyenDTO(id, ten, true);
                         quyenBUS.addQuyen(quyen);
                         
@@ -748,5 +762,40 @@ public class QuyenGUI extends JPanel {
         this.btnThem.setVisible(quyenThem);
         this.btnSua.setVisible(quyenSua);
         this.btnXoa.setVisible(quyenXoa);
+    }
+
+    private String validateTenQuyen(String tenQuyen, boolean isEditing) {
+        // Kiểm tra độ dài
+        if (tenQuyen.length() < 5) {
+            return "Tên quyền phải có ít nhất 5 ký tự!";
+        }
+        if (tenQuyen.length() > 50) {
+            return "Tên quyền không được vượt quá 50 ký tự!";
+        }
+
+        // Kiểm tra ký tự đặc biệt và số (chỉ cho phép chữ cái và khoảng trắng)
+        if (!tenQuyen.matches("^[a-zA-Z\\p{L}\\s]+$")) {
+            return "Tên quyền không được chứa ký tự đặc biệt hoặc số!";
+        }
+
+        // Kiểm tra khoảng trắng
+        if (tenQuyen.startsWith(" ") || tenQuyen.endsWith(" ")) {
+            return "Tên quyền không được bắt đầu hoặc kết thúc bằng khoảng trắng!";
+        }
+        if (tenQuyen.contains("  ")) {
+            return "Tên quyền chỉ chứa một khoảng trắng giữa hai kí tự!";
+        }
+
+        // Kiểm tra trùng tên
+        for (QuyenDTO quyen : quyenBUS.getQuyenList()) {
+            if (quyen.isEnable() && quyen.getTenQuyen().equalsIgnoreCase(tenQuyen)) {
+                if (isEditing && quyen.getIdQuyen().equals(arrTfInfor.get(0).getText())) {
+                    continue;
+                }
+                return "Tên quyền đã tồn tại trong hệ thống!";
+            }
+        }
+
+        return "done";
     }
 }
