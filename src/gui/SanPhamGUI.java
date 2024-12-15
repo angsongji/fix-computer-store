@@ -11,6 +11,8 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.HeadlessException;
 import java.awt.Image;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -624,12 +626,32 @@ public class SanPhamGUI extends JPanel {
         JLabel lb_gia = new JLabel("Giá", JLabel.CENTER);
         JTextField tf_min_price = new JTextField();
         tf_min_price.setPreferredSize(new Dimension(100, 30));
+        tf_min_price.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                // Nếu ký tự không phải là số hoặc là ký tự điều khiển, thì hủy sự kiện
+                if (!Character.isDigit(c) || c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_DELETE) {
+                    e.consume(); // Ngăn không cho nhập
+                }
+            }
+        });
         
         JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
         sep.setPreferredSize(new Dimension(20, 10));
         
         JTextField tf_max_price = new JTextField();
         tf_max_price.setPreferredSize(new Dimension(100, 30));
+        tf_max_price.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                // Nếu ký tự không phải là số hoặc là ký tự điều khiển, thì hủy sự kiện
+                if (!Character.isDigit(c) || c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_DELETE) {
+                    e.consume(); // Ngăn không cho nhập
+                }
+            }
+        });
         
         JButton btn_loc = new JButton("Lọc");
         btn_loc.setPreferredSize(new Dimension(100, 30));
@@ -654,6 +676,12 @@ public class SanPhamGUI extends JPanel {
                     max_price = Integer.parseInt(tf_max_price.getText());
                 }
                 
+                if(min_price > max_price){
+                    JOptionPane.showMessageDialog(null,
+                        "Giá tối thiểu phải nhỏ hơn giá tối đa",
+                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
 
                 reloadSP(sanPhamBUS.filter(hang, min_price, max_price));
             }
@@ -849,4 +877,5 @@ public class SanPhamGUI extends JPanel {
             System.out.println(e);
         }
     }
+    
 }
