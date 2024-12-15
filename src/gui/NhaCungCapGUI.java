@@ -373,14 +373,8 @@ public class NhaCungCapGUI extends JPanel {
             public void mouseClicked(MouseEvent e) {
                 int confirmed;
                 if (isEditing) { // đang trong chế độ sửa
-                    confirmed = JOptionPane.showConfirmDialog(null, "Xác nhận sửa nhà cung cấp", "", JOptionPane.YES_NO_OPTION);
-                    if (confirmed == 0) { // xác nhận sửa
-                        String idNCC = arrTfInfor.get(0).getText();
-                        String tenNCC = arrTfInfor.get(1).getText();
-                        String diachi = arrTfInfor.get(2).getText();
-                        String sdt = arrTfInfor.get(3).getText();
-
-                        //Kiểm tra địa chỉ
+                    String diachi = arrTfInfor.get(2).getText();
+                    //Kiểm tra địa chỉ
                         if (diachi == null || diachi.trim().isEmpty()) {
                             JOptionPane.showMessageDialog(null, "Địa chỉ không được để trống!");
                             return;
@@ -391,24 +385,41 @@ public class NhaCungCapGUI extends JPanel {
                                 return;
                             }
                         }
+                    confirmed = JOptionPane.showConfirmDialog(null, "Xác nhận sửa nhà cung cấp", "", JOptionPane.YES_NO_OPTION);
+                    if (confirmed == 0) { // xác nhận sửa
+                        String idNCC = arrTfInfor.get(0).getText();
+                        String tenNCC = arrTfInfor.get(1).getText();
+                        
+                        String sdt = arrTfInfor.get(3).getText();
+
+                        
                         
                         NhaCungCapDTO ncc = new NhaCungCapDTO(idNCC, tenNCC, diachi, sdt, true);
                         nhaCungCapBUS.updateNhaCungCap(ncc);
                         reloadNCC(nhaCungCapBUS.getNccList());
+                         blankInfor();
                         
+                        lockInforAll();
+
+                        btnThem.setVisible(true);
+                        btnSua.setVisible(true);
+                        btnXoa.setVisible(true);
+                        btnNhapExcel.setVisible(true);
+                        btnXuatExcel.setVisible(true);
+
+                        showCN();
+
+                        btn_hoan_thanh.setVisible(false);
+                        btn_tro_ve.setVisible(false);
+
+                        table.setEnabled(true);
                         
                         JOptionPane.showMessageDialog(null, "Sửa thành công", "OK", JOptionPane.INFORMATION_MESSAGE);
                     }
                 }
                 else { // đang trong chế độ thêm
-                    confirmed = JOptionPane.showConfirmDialog(null, "Xác nhận thêm nhà cung cấp", "", JOptionPane.YES_NO_OPTION);
-                    if (confirmed == 0) { // xác nhận thêm
-                        String idNCC = arrTfInfor.get(0).getText();
-                        String tenNCC = arrTfInfor.get(1).getText();
-                        String diachi = arrTfInfor.get(2).getText();
-                        String sdt = arrTfInfor.get(3).getText();
-
-                        //Kiểm tra tên
+                    String tenNCC = arrTfInfor.get(1).getText();
+                    //Kiểm tra tên
                         if (tenNCC == null || tenNCC.trim().isEmpty()) {
                             JOptionPane.showMessageDialog(null, "Tên không được để trống!");
                             return;
@@ -421,7 +432,7 @@ public class NhaCungCapGUI extends JPanel {
                             JOptionPane.showMessageDialog(null, "Tên không được có kí tự đặc biệt hoặc chữ số!");
                             return;
                         }
-                        
+                        String diachi = arrTfInfor.get(2).getText();
                         //Kiểm tra địa chỉ
                         if (diachi == null || diachi.trim().isEmpty()) {
                             JOptionPane.showMessageDialog(null, "Địa chỉ không được để trống!");
@@ -433,7 +444,7 @@ public class NhaCungCapGUI extends JPanel {
                                 return;
                             }
                         }
-                        
+                        String sdt = arrTfInfor.get(3).getText();
                         //Kiểm tra số điện thoại
                         if (sdt == null || sdt.trim().isEmpty()) {
                             JOptionPane.showMessageDialog(null, "Số điện thoại không được để trống!");
@@ -443,12 +454,27 @@ public class NhaCungCapGUI extends JPanel {
                             JOptionPane.showMessageDialog(null, "Số điện thoại phải bắt đầu bằng số 0 và theo sau là 9 chữ số!");
                             return;
                         }
-
-                        
+                        String idNCC = arrTfInfor.get(0).getText();
                         if (nhaCungCapBUS.isExisted(idNCC)) {
                             JOptionPane.showMessageDialog(null, "Mã nhà cung cấp đă tồn tại!");
                             return;
                         }
+                    confirmed = JOptionPane.showConfirmDialog(null, "Xác nhận thêm nhà cung cấp", "", JOptionPane.YES_NO_OPTION);
+                    if (confirmed == 0) { // xác nhận thêm
+                        
+                        
+                        
+                        
+
+                        
+                        
+                        
+                        
+                        
+                        
+
+                        
+                        
                         
                         NhaCungCapDTO ncc = new NhaCungCapDTO(idNCC, tenNCC, diachi, sdt, true);
                         nhaCungCapBUS.addNhaCungCap(ncc);
@@ -659,6 +685,7 @@ public class NhaCungCapGUI extends JPanel {
     public void reloadNCC(ArrayList<NhaCungCapDTO> nccList) {
         model.setRowCount(0);
         for (NhaCungCapDTO ncc : nccList) {
+            if(ncc.isEnable())
             model.addRow(new Object[]{
                 ncc.getIdNhaCungCap(), ncc.getTenNhaCungCap(), ncc.getDiachi(), ncc.getSdt()
             });
