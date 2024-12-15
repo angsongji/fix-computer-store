@@ -371,6 +371,12 @@ public class KhachHangGUI extends JPanel {
         btn_hoan_thanh.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
+                String validateResult = validateInput();
+                if (!validateResult.equals("OK")) {
+                    JOptionPane.showMessageDialog(null, validateResult, "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
                 int confirmed;
                 if (isEditing) { // đang trong chế độ sửa
                     confirmed = JOptionPane.showConfirmDialog(null, "Xác nhận sửa khách hàng", "", JOptionPane.YES_NO_OPTION);
@@ -396,7 +402,7 @@ public class KhachHangGUI extends JPanel {
                         String sdt = arrTfInfor.get(3).getText();
                         
                         if (khachHangBUS.isExisted(idKH)) {
-                            JOptionPane.showMessageDialog(null, "Mã khách hàng đă tồn tại!");
+                            JOptionPane.showMessageDialog(null, "Mã khách hàng đã tồn tại!");
                             return;
                         }
                         
@@ -640,5 +646,34 @@ public class KhachHangGUI extends JPanel {
         } catch (IOException e) {
             System.out.println(e);
         }
+    }
+
+    // Thêm method validate vào class
+    private String validateInput() {
+        // Validate tên khách hàng
+        String tenKH = arrTfInfor.get(1).getText().trim();
+        if (tenKH.length() < 10 || tenKH.length() > 50) {
+            return "Tên khách hàng phải từ 10 đến 50 ký tự!";
+        }
+        if (!tenKH.matches("^[\\p{L} ]+$")) {
+            return "Tên khách hàng không được chứa số hoặc ký tự đặc biệt!";
+        }
+
+        // Validate địa chỉ
+        String diaChi = arrTfInfor.get(2).getText().trim();
+        if (diaChi.length() < 10 || diaChi.length() > 50) {
+            return "Địa chỉ phải từ 10 đến 50 ký tự!";
+        }
+
+        // Validate số điện thoại
+        String sdt = arrTfInfor.get(3).getText().trim();
+        if (sdt.length() != 10) {
+            return "Số điện thoại phải đủ 10 số!";
+        }
+        if (!sdt.matches("^0\\d{9}$")) {
+            return "Số điện thoại phải bắt đầu bằng số 0 và chỉ chứa số!";
+        }
+
+        return "OK";
     }
 }
