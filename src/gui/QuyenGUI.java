@@ -371,18 +371,47 @@ public class QuyenGUI extends JPanel {
                         reloadQuyen(quyenBUS.getQuyenList());
                         
                         ArrayList<String> arr_cn = getArrIdCN();
-                        updateCTQCN(arr_cn);
+                            updateCTQCN(arr_cn);
+                        reloadCTChucNang(arr_cn);
+                        isEditing = false;
+                
+                        reloadQuyen(quyenBUS.getQuyenList());
+                        blankInfor();
+                        lockInfor(true);
+                        btnThem.setVisible(true);
+                        btnSua.setVisible(true);
+                        btnXoa.setVisible(true);
+
+                        btn_hoan_thanh.setVisible(false);
+                        btn_tro_ve.setVisible(false);
+                        
+                        table.setEnabled(true);
                         
                         JOptionPane.showMessageDialog(null, "Sửa thành công", "OK", JOptionPane.INFORMATION_MESSAGE);
                     }
                 }
                 else { // đang trong chế độ thêm
                     String id = arrTfInfor.get(0).getText();
-                    String ten = arrTfInfor.get(1).getText();
+                    String ten = arrTfInfor.get(1).getText().trim();
                     
-                    if (ten.trim().equals("")) {
+                    if (ten.equals("")) {
                         JOptionPane.showMessageDialog(null, "Tên không được để trống!");
                         return;
+                    }else{
+                        if(ten.length() <5){
+                        JOptionPane.showMessageDialog(null, "Tên quyền từ 5 kí tự đến 50 kí tự!");
+                        return;
+                        }else if(ten.length() > 50){
+                        JOptionPane.showMessageDialog(null, "Tên quyền từ 5 kí tự đến 50 kí tự!");
+                        return;
+                        }
+                        boolean flag = false;
+                        for(QuyenDTO q : quyenBUS.getQuyenList())
+                            if(q.getTenQuyen().equals(ten)) {flag = true; break;}
+                        if(flag){
+                            JOptionPane.showMessageDialog(null, "Tên quyền không được trùng với tên quyền đã có trong danh sách!");
+                            return;
+                        }
                     }
 
                     String validateResult = validateTenQuyen(ten, false);
@@ -398,8 +427,11 @@ public class QuyenGUI extends JPanel {
                         quyenBUS.addQuyen(quyen);
                         
                         ArrayList<String> arr_cn = getArrIdCN();
-                        updateCTQCN(arr_cn);
+                        if(!arr_cn.isEmpty()){
+                            updateCTQCN(arr_cn);
                         reloadCTChucNang(arr_cn);
+                        }
+                        
                   
                         reloadQuyen(quyenBUS.getQuyenList());
                         blankInfor();
@@ -412,6 +444,7 @@ public class QuyenGUI extends JPanel {
                         btn_tro_ve.setVisible(false);
                         
                         table.setEnabled(true);
+                         JOptionPane.showMessageDialog(null, "Thêm quyền mới thành công!");
                     }
                 }
             }
